@@ -15,7 +15,7 @@
 module load r/4.0.2
 
 
-cd "data/katz/projects/glcp-analysis/scripts"
+cd "data/katz/projects/glcp-analysis"
 echo
 echo "--- We are now in $PWD, running an R script ..."
 echo
