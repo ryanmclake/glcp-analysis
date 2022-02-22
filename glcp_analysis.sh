@@ -11,10 +11,14 @@
 #SBATCH --verbose                             ### Increase informational messages
 #SBATCH --mem=2048                            ### Amount of memory in MB
 
-
 # Load R on compute node
 module load r/4.0.2
 
+
+cd "data/katz/projects/glcp-analysis/scripts"
+echo
+echo "--- We are now in $PWD, running an R script ..."
+echo
 echo "Runing package_download.R"
 echo "Runing read_glcp_data.R"
 echo "Runing Q1_direction_magnitude.R"
