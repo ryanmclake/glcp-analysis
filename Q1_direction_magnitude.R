@@ -1,15 +1,26 @@
+library(multidplyr)
+library(vroom)
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(maps)
 
-cluster <- multidplyr::new_cluster(8)
+cluster <- multidplyr::new_cluster(16)
 
 
-  d2 <- data %>%
+d2 <- vroom::vroom("./data/glcp_hydro_and_climate_pop_subset_all_vars.csv", delim = ",") %>%
     dplyr::group_by(hybas_id) %>%
     dplyr::filter(lake_type == 1) %>%
     dplyr::mutate(Z_total_km2 = scale(total_km2, center = TRUE, scale = TRUE),
                   Z_precip = scale(sum_precip_mm, center = TRUE, scale = TRUE),
                   Z_temp = scale(mean_temp_k, center = TRUE, scale = TRUE),
-                  Z_pop = scale(pop_sum, center = TRUE, scale = TRUE)) %>%
-    dplyr::select(hybas_id, pour_long, pour_lat, year, Z_total_km2, Z_precip, Z_temp, Z_pop) %>%
+                  Z_pop = scale(pop_sum, center = TRUE, scale = TRUE))
+    dplyr::group_by(year) %>%
+    dplyr::mutate(SD_precip = sd(sum_precip_mm),
+                  SD_temp = sd(mean_temp_k),
+                  SD_pop = scale(pop_sum)) %>%
+    dplyr::ungroup(.) %>%
+    dplyr::select(hybas_id, year, Z_total_km2, Z_precip, Z_temp, Z_pop) %>%
     na.omit(.)%>%
     dplyr::group_by(hybas_id, pour_long, pour_lat) %>%
     multidplyr::partition(cluster) %>%
@@ -79,7 +90,6 @@ rsq <- bind_cols(as.data.frame(d2$hybas_id),
 
 saveRDS(rsq, "./output/hybas_id_rsq.rds")
 
-
 world <- map_data("world")
 
 slopes <- slopes %>%
@@ -94,21 +104,21 @@ slope_plot <- ggplot() +
            aes(long, lat, map_id = region),
            color = "black", fill = NA, size = 0.1)+
   labs(x = "Longitude", y = "Latitude")+
-  geom_sf(data = slopes, aes(color = total_slope), pch = 15, size = 0.8, inherit.aes = F)+
+  geom_sf(data = slopes, aes(color = total_slope), pch = 15, size = 0.1, inherit.aes = F)+
   scale_color_gradient2(midpoint=mid_slope, low="blue", mid="green3",
-                        high="red", space ="Lab")+
+                        high="red", space ="Lab") +
   theme_classic()
 slope_plot
-ggsave(path = Dir.Base, filename = "./output/figures/slope_global_plot.jpg", width = 10, height = 8, device='jpg', dpi=700)
+ggsave(path = ".", filename = "./output/figures/slope_global_plot.jpg", width = 10, height = 8, device='jpg', dpi=700)
 
 rsq_plot <- ggplot() +
   geom_map(data = world, map = world,
            aes(long, lat, map_id = region),
            color = "black", fill = NA, size = 0.1)+
   labs(x = "Longitude", y = "Latitude")+
-  geom_sf(data = rsq, aes(color = total_rsq), pch = 15, size = 0.8, inherit.aes = F)+
+  geom_sf(data = rsq, aes(color = total_rsq), pch = 15, size = 0.1, inherit.aes = F)+
   scale_color_gradient(low="blue",
                         high="red")+
   theme_classic()
 rsq_plot
-ggsave(path = Dir.Base, filename = "./output/figures/rsq_global_plot.jpg", width = 10, height = 8, device='jpg', dpi=700)
+ggsave(path = ".", filename = "./output/figures/rsq_global_plot.jpg", width = 10, height = 8, device='jpg', dpi=700)
