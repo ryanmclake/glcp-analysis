@@ -9,8 +9,8 @@ library(hydroGOF)
 
 con <- dbConnect(RSQLite::SQLite(), dbname = "./data/glcp_extended_SQLdb.sqlite")
 
-lakes <- as.data.frame(tbl(con, sql("SELECT hylak_id FROM GLCP_SQLdb"))) %>%
-  group_by(hylak_id) %>%
+lakes <- as.data.frame(tbl(con, sql("SELECT hybas_id FROM GLCP_SQLdb"))) %>%
+  group_by(hybas_id) %>%
   summarize_all(funs(mean)) %>%
   t(.) %>%
   c(.) %>%
@@ -19,7 +19,12 @@ lakes <- as.data.frame(tbl(con, sql("SELECT hylak_id FROM GLCP_SQLdb"))) %>%
 driver_function <- function(x, con){
 
   con <- dbConnect(RSQLite::SQLite(), dbname = "./data/glcp_extended_SQLdb.sqlite")
-  d <- DBI::dbGetQuery(con, paste0("SELECT * FROM GLCP_SQLdb WHERE hylak_id == ",x,"")) %>%
+
+  d <- DBI::dbGetQuery(con, paste0("SELECT * FROM GLCP_SQLdb WHERE hybas_id == ",x,""))
+
+  dbDisconnect(con)
+
+    d %>%
     dplyr::mutate_at(vars(pop_sum),funs(imputeTS::na_interpolation(., option = "linear"))) %>%
     dplyr::mutate(Z_total_km2 = scale(total_km2, center = TRUE, scale = TRUE),
                   Z_sum_precip_mm = scale(sum_precip_mm, center = TRUE, scale = TRUE),
@@ -39,7 +44,6 @@ driver_function <- function(x, con){
                           Z_mean_totcloud_pct,
                           Z_mean_sw_wm2,
                           Z_mean_lw_wm2),funs(imputeTS::na_interpolation(., option = "linear"))) %>%
-    mutate_all(funs(ifelse(is.na(.),0,.)))%>%
     dplyr::ungroup(.) %>%
     select(hylak_id, year, pour_long, pour_lat, Z_total_km2, lag_Z_total_km2, Z_sum_precip_mm,Z_mean_temp_k,Z_pop_sum,Z_mean_spec_humidity,Z_mean_totcloud_pct,
            Z_mean_sw_wm2,Z_mean_lw_wm2,elevation,continent,slope_100,shore_dev,res_time,sub_area) %>%

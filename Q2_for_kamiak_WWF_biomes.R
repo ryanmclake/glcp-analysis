@@ -14,17 +14,16 @@ if (!file.exists(file.path(Dir.Shapes, "WWF_ecoregions"))) {
 }
 
 data <- readRDS("./output/hylak_id_slopes.rds") %>%
-  rename(`Lake Area Change` = fit_total_slope) %>%
   st_as_sf(coords = c("pour_long", "pour_lat"), crs = 4326)
 
 EcoregionMask <- read_sf(file.path(Dir.Base,"data","shapes", "WWF_ecoregions", "official", "wwf_terr_ecos.shp")) 			# read
 EcoregionMask <- st_make_valid(EcoregionMask)
 
-ECO_ID <- c(EcoregionMask$ECO_ID)
+BIOME <- c(as.numeric(unique(EcoregionMask$BIOME)))
 lake_to_biome <- list()
 
-  for(i in 1:length(ECO_ID)){
-     b <- EcoregionMask %>% filter(ECO_ID == ECO_ID[i])
+  for(i in 1:(BIOME)){
+     b <- EcoregionMask %>% filter(BIOME == BIOME[i])
      b2 <- data %>%
        cbind(b[st_nearest_feature(data, b),]) %>%
        mutate(dist = st_distance(geometry, geometry.1, by_element = T))
@@ -52,7 +51,7 @@ biome_change <- lake_to_biome %>%
     BIOME == 14 ~ "MANGROVES",
     TRUE ~ NA_character_))
 
-biome_change_plot <- ggplot(biome_change, aes(BIOME_TYPE, Lake.Area.Change, group = BIOME_TYPE))+
+biome_change_plot <- ggplot(biome_change, aes(BIOME_TYPE, , group = BIOME_TYPE))+
   geom_boxplot(fill = "grey70", color = "black", lwd = 0.6, alpha = 0.6, show.legend = FALSE) +
   labs(x = "WWF Biomes", y = "Change in total lake area (km2)") +
   stat_summary(
