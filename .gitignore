@@ -6,6 +6,9 @@
 .RData
 .DS_Store
 
+# Data and figure files
+/data/countries/
+
 # User-specific files
 .Ruserdata
 
