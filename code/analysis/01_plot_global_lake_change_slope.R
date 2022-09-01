@@ -117,7 +117,7 @@ slope_data_ones <- vroom::vroom("./output/slopes/hylak_id_kendall.csv", delim = 
   st_transform("+proj=eqearth +wktext")
 
 
-slope_data <- vroom::vroom("./output/slopes/hylak_id_kendall.csv", delim = " ", col_names = T) %>%
+slope_data <- vroom::vroom("./output/slopes/hylak_id_kendall2.csv", delim = " ", col_names = T) %>%
   rename(lsa_pval = p.value,
          lsa_tau = statistic) %>%
   mutate_all(funs(as.numeric(.))) %>%

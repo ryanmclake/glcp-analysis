@@ -4,7 +4,7 @@ library(arrow, warn.conflicts = FALSE)
 library(dplyr, warn.conflicts = FALSE)
 library(doParallel, warn.conflicts = FALSE)
 library(broom, warn.conflicts = FALSE)
-library(trend, warn.conflicts = FALSE)
+library(Kendall, warn.conflicts = FALSE)
 library(tidyr, warn.conflicts = FALSE)
 
 
@@ -13,8 +13,8 @@ country <- gsub("\\..*", "", country)
 
 analysis_function <- function(x){
 
-  system.time(read_csv_arrow(
-    paste0("./data/countries/",x,".csv"),
+  system.time(d <- read_csv_arrow(
+    paste0("./data/countries/",country[1],".csv"),
     quote = "\"",
     escape_double = TRUE,
     escape_backslash = FALSE,
@@ -81,28 +81,37 @@ analysis_function <- function(x){
                                          snow_km2=f48) %>%
       group_by(year, hylak_id, centr_lat, centr_lon) %>%
       summarize(total_km2 = median(total_km2, na.rm = T),
-                pop_sum = median(pop_sum, na.rm = T)) %>%
+                pop_sum = median(pop_sum, na.rm = T),
+                lake_area = median(lake_area, na.rm = T),
+                wshd_area = median(wshd_area, na.rm = T)) %>%
       ungroup(.) %>%
-      select(-year) %>%
-      group_by(hylak_id, centr_lat, centr_lon) %>%
-      mutate(total_km2 = scale(total_km2)) %>%
+      group_by(hylak_id) %>%
       mutate_at(vars(pop_sum),funs(imputeTS::na_interpolation(., option = "linear"))) %>%
-      mutate(total_km2 = if_else(is.na(total_km2),0,total_km2)) %>%
-      mutate(pop_diff = last(pop_sum) - first(pop_sum)) %>%
+      mutate(pop_diff = last(pop_sum) - first(pop_sum),
+             ratio = lake_area/wshd_area,
+             total_km2 = if_else(is.na(total_km2),0,total_km2)) %>%
+      select(-lake_area, -wshd_area, -pop_sum, -year) %>%
+      mutate(across(c(3), ~ scale(.))) %>%
+      mutate(across(c(3), ~ if_else(is.na(.),0,.))) %>%
+      na.omit(.) %>%
       ungroup(.) %>%
+      mutate(q95 = quantile(ratio, 0.95),
+             q05 = quantile(ratio, 0.05)) %>%
+      filter(ratio <= q95) %>%
+      filter(ratio >= q05) %>%
+      select(-q95, -q05, -ratio) %>%
       group_by(hylak_id, centr_lat, centr_lon, pop_diff) %>%
-      do(mod = sens.slope(.$total_km2)) %>%
-      mutate(sens_slope = mod[1],
-             p_val = mod[3]) %>%
-      select(-mod) %>%
-      mutate(sens_slope = sens_slope[1]) %>%
+      summarise(across(c(1),  ~list(sens.slope(.) %>%
+                                      tidy %>%
+                                      select(p.value, conf.low, conf.high)))) %>%
       ungroup(.) %>%
-      filter(sens_slope != 0.0000000000000) %>%
+      unnest(c(5), names_repair = "minimal") %>%
+      mutate(sens.slope = (conf.low+conf.high)/2) %>%
       collect() %>%
-      write.table(., file = paste0("./output/hylak_id_kendall.csv"),
+      write.table(., file = paste0("./output/hylak_id_kendall_sens.csv"),
                   append = T,
                   row.names = F,
-                  col.names = !file.exists("./output/hylak_id_kendall.csv")))
+                  col.names = !file.exists("./output/hylak_id_kendall_sens.csv")))
 }
 
 
