@@ -8,16 +8,13 @@ library(broom, warn.conflicts = FALSE)
 country <- list.files(path = "./data/countries")
 country <- gsub("\\..*", "", country)
 
-slope_data_shrink <- vroom::vroom("./output/hylak_id_kendall.csv", delim = " ", col_names = T) %>%
-  rename(lsa_pval = p.value,
-         lsa_tau = statistic) %>%
+slope_data_swell <- vroom::vroom("./output/hylak_id_kendall_sens.csv", delim = " ", col_names = T) %>%
   mutate_all(funs(as.numeric(.))) %>%
   filter(!(hylak_id %% 1)) %>%
   na.omit(.) %>%
-  filter(lsa_tau <= 1.000000000000) %>%
-  filter(lsa_tau != 0.000000000000) %>%
-  filter(lsa_pval < 0.050000000000) %>%
-  filter(lsa_tau > 0.000000000000)
+  filter(sens.slope != 0.000000000000) %>%
+  filter(p.value < 0.050000000000) %>%
+  filter(sens.slope > 0.000000000000)
 
 slope_data_swell <- c(unique(slope_data_swell$hylak_id))
 
@@ -26,7 +23,7 @@ slope_data_swell <- c(unique(slope_data_swell$hylak_id))
 analysis_function <- function(x){
 
     system.time(d <- read_csv_arrow(
-      paste0("./data/countries/",country[29],".csv"),
+      paste0("./data/countries/",country[3],".csv"),
       quote = "\"",
       escape_double = TRUE,
       escape_backslash = FALSE,
@@ -92,7 +89,7 @@ analysis_function <- function(x){
                                            ice_cover_count=f47,
                                            snow_km2=f48) %>%
         filter(hylak_id %in% slope_data_swell) %>%
-        group_by(year, hybas_id) %>%
+        group_by(year, hylak_id) %>%
         collect() %>%
         summarize(total_km2 = median(total_km2, na.rm = T),
                   total_precip_mm = sum(total_precip_mm, na.rm = T),
@@ -102,15 +99,14 @@ analysis_function <- function(x){
                   centr_lat = median(centr_lat, na.rm = T),
                   centr_lon = median(centr_lon, na.rm = T)) %>%
         ungroup(.) %>%
-        group_by(hybas_id) %>%
+        group_by(hylak_id) %>%
         mutate_at(vars(pop_sum),funs(imputeTS::na_interpolation(., option = "linear"))) %>%
         select(-year) %>%
-        mutate(pop_diff = last(pop_sum) - first(pop_sum),
-               area_diff = last(total_km2) - first(total_km2)) %>%
-        mutate(across(c(1:6), ~ scale(.))) %>%
-        mutate(across(c(1:6), ~ if_else(is.na(.),0,.))) %>%
+        mutate(pop_diff = last(pop_sum) - first(pop_sum)) %>%
+        mutate(across(c(1:4), ~ scale(.))) %>%
+        mutate(across(c(1:4), ~ if_else(is.na(.),0,.))) %>%
         na.omit(.) %>%
-        group_by(hybas_id, centr_lat, centr_lon, pop_diff, area_diff) %>%
+        group_by(hylak_id, centr_lat, centr_lon, pop_diff) %>%
         do(mod = lm(total_km2 ~ total_precip_mm + mean_temp_k + pop_sum, data = ., na.action = na.exclude)) %>%
         mutate(precip_coeff = summary(mod)$coefficients[2],
                precip_p = summary(mod)$coefficients[2,4],

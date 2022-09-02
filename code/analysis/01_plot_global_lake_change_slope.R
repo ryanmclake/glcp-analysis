@@ -106,25 +106,18 @@ library(outliers)
 #   filter(biome_type %in% c("TROPICAL MOIST FOREST","TROPICAL DRY FOREST","TROPICAL GRASSLAND","MANGROVES",
 #                            "TROPICAL CONIFEROUS FOREST"))
 
-slope_data_ones <- vroom::vroom("./output/slopes/hylak_id_kendall.csv", delim = " ", col_names = T) %>%
-  rename(lsa_pval = p.value,
-         lsa_tau = statistic) %>%
+slope_data_ones <- vroom::vroom("./output/slopes/hylak_id_kendall_tau.csv", delim = " ", col_names = T) %>%
   mutate_all(funs(as.numeric(.))) %>%
   filter(!(hylak_id %% 1)) %>%
   na.omit(.) %>%
-  filter(lsa_tau == 1.000000000000) %>%
-  st_as_sf(coords = c("centr_lon", "centr_lat"), crs = 4326) %>%
-  st_transform("+proj=eqearth +wktext")
+  filter(kendall_tau == 1.000000000000)
 
-
-slope_data <- vroom::vroom("./output/slopes/hylak_id_kendall2.csv", delim = " ", col_names = T) %>%
-  rename(lsa_pval = p.value,
-         lsa_tau = statistic) %>%
+slope_data <- vroom::vroom("./output/slopes/hylak_id_kendall_tau.csv", delim = " ", col_names = T) %>%
   mutate_all(funs(as.numeric(.))) %>%
   filter(!(hylak_id %% 1)) %>%
   na.omit(.) %>%
-  filter(lsa_tau < 1.000000000000) %>%
-  filter(lsa_tau != 0.000000000000) %>%
+  filter(kendall_tau < 1.000000000000) %>%
+  filter(kendall_tau != 0.000000000000) %>%
   st_as_sf(coords = c("centr_lon", "centr_lat"), crs = 4326) %>%
   st_transform("+proj=eqearth +wktext")
 
@@ -160,11 +153,11 @@ grid <- st_make_grid(
 
 grid <- st_sf(index = 1:length(lengths(grid)), grid)
 
-area_hexes <- st_join(slope_data_2, grid, join = st_intersects)
+area_hexes <- st_join(slope_data, grid, join = st_intersects)
 area_hexes_avg <- area_hexes %>%
   st_drop_geometry() %>%
   group_by(index) %>%
-  summarise(lsa_tau = median(lsa_tau, na.rm = TRUE)) %>%
+  summarise(kendall_tau = median(kendall_tau, na.rm = TRUE)) %>%
   right_join(grid, by="index") %>%
   st_sf()
 
@@ -172,7 +165,7 @@ lake_area_change <-
   ggplot() +
   geom_sf(data = world, lwd = 0.5, color = "black")+
   geom_sf(data = area_hexes_avg,lwd = 0.05,
-    aes(fill = lsa_tau))+
+    aes(fill = kendall_tau))+
   scale_fill_gradient2(midpoint=0, low="tan1", mid="white",
                        high="turquoise1", space ="Lab", na.value="black",
                        name = "**Δ Lake Surface Area** <br>Kendall tau estimate") +

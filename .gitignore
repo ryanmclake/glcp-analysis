@@ -8,7 +8,9 @@
 
 # Data and figure files
 /data/countries/
-/output/slopes/
+/output/
+/data/glcp_base/
+/data/shapes/
 
 # User-specific files
 .Ruserdata

@@ -92,7 +92,7 @@ analysis_function <- function(x){
                                          ice_cover_count=f47,
                                          snow_km2=f48) %>%
       filter(hylak_id %in% slope_data_shrink) %>%
-      group_by(year, hybas_id) %>%
+      group_by(year, hylak_id) %>%
       collect() %>%
       summarize(total_km2 = median(total_km2, na.rm = T),
                 total_precip_mm = sum(total_precip_mm, na.rm = T),
@@ -102,15 +102,14 @@ analysis_function <- function(x){
                 centr_lat = median(centr_lat, na.rm = T),
                 centr_lon = median(centr_lon, na.rm = T)) %>%
       ungroup(.) %>%
-      group_by(hybas_id) %>%
+      group_by(hylak_id) %>%
       mutate_at(vars(pop_sum),funs(imputeTS::na_interpolation(., option = "linear"))) %>%
       select(-year) %>%
-      mutate(pop_diff = last(pop_sum) - first(pop_sum),
-             area_diff = last(total_km2) - first(total_km2)) %>%
-      mutate(across(c(1:6), ~ scale(.))) %>%
-      mutate(across(c(1:6), ~ if_else(is.na(.),0,.))) %>%
+      mutate(pop_diff = last(pop_sum) - first(pop_sum)) %>%
+      mutate(across(c(1:4), ~ scale(.))) %>%
+      mutate(across(c(1:4), ~ if_else(is.na(.),0,.))) %>%
       na.omit(.) %>%
-      group_by(hybas_id, centr_lat, centr_lon, pop_diff, area_diff) %>%
+      group_by(hylak_id, centr_lat, centr_lon, pop_diff) %>%
       do(mod = lm(total_km2 ~ total_precip_mm + mean_temp_k + pop_sum, data = ., na.action = na.exclude)) %>%
       mutate(precip_coeff = summary(mod)$coefficients[2],
              precip_p = summary(mod)$coefficients[2,4],
