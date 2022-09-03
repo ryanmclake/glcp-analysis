@@ -33,3 +33,5 @@ We developed a workflow that analyzes the magnitude and direction of lake area c
 The workflow in kamiak runs through each country. The directory to run these scripts in kamiak is:
 
 <i>cd /data/lab/katz/projects/glcp-analysis/</i>
+
+The R and the shell scripts needed to run the data are in this directory. I have simply been adapting the .sh script each time I run a new R script. 
