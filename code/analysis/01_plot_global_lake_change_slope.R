@@ -112,12 +112,10 @@ slope_data_ones <- vroom::vroom("./output/slopes/hylak_id_kendall_tau.csv", deli
   na.omit(.) %>%
   filter(kendall_tau == 1.000000000000)
 
-slope_data <- vroom::vroom("./output/slopes/hylak_id_kendall_tau.csv", delim = " ", col_names = T) %>%
+slope_data <- vroom::vroom("./output/hylak_id_kendall_sens.csv", delim = " ", col_names = T) %>%
   mutate_all(funs(as.numeric(.))) %>%
   filter(!(hylak_id %% 1)) %>%
   na.omit(.) %>%
-  filter(kendall_tau < 1.000000000000) %>%
-  filter(kendall_tau != 0.000000000000) %>%
   st_as_sf(coords = c("centr_lon", "centr_lat"), crs = 4326) %>%
   st_transform("+proj=eqearth +wktext")
 
@@ -136,10 +134,12 @@ reservoirs <- c(unique(dam_glcp_link$hylak_id))
 slope_data_2 <- slope_data %>%
   filter(hylak_id %!in% reservoirs)
 
+slope_data_2 <- slope_data_2[!duplicated(slope_data_2$hylak_id), ]
+
 world <-  ne_download(scale = 110, type = 'land', category = 'physical', returnclass = "sf") %>%
   st_transform("+proj=eqearth +wktext")
 
-grid_spacing <- 222000 # CRS units in meters (100000 m = 111 km & 111 km ~ 1 Decimal degree)
+grid_spacing <- 96000 # CRS units in meters (100000 m = 111 km & 111 km ~ 1 Decimal degree)
 
 grid <- st_make_grid(
   world,
@@ -153,11 +153,11 @@ grid <- st_make_grid(
 
 grid <- st_sf(index = 1:length(lengths(grid)), grid)
 
-area_hexes <- st_join(slope_data, grid, join = st_intersects)
+area_hexes <- st_join(slope_data_2, grid, join = st_intersects)
 area_hexes_avg <- area_hexes %>%
   st_drop_geometry() %>%
   group_by(index) %>%
-  summarise(kendall_tau = median(kendall_tau, na.rm = TRUE)) %>%
+  summarise(sens.slope = median(sens.slope, na.rm = TRUE)) %>%
   right_join(grid, by="index") %>%
   st_sf()
 
@@ -165,10 +165,10 @@ lake_area_change <-
   ggplot() +
   geom_sf(data = world, lwd = 0.5, color = "black")+
   geom_sf(data = area_hexes_avg,lwd = 0.05,
-    aes(fill = kendall_tau))+
+    aes(fill = sens.slope))+
   scale_fill_gradient2(midpoint=0, low="tan1", mid="white",
                        high="turquoise1", space ="Lab", na.value="black",
-                       name = "**Δ Lake Surface Area** <br>Kendall tau estimate") +
+                       name = "**Δ Lake Surface Area** <br>Sens Slope (km/yr)") +
   coord_sf(xlim = c(-15000000, 16000000), ylim = c(-8600000, 8600000), expand = FALSE) +
   guides(fill = guide_colourbar(title.position = "top"))+
   theme_void()+
@@ -180,7 +180,7 @@ lake_area_change <-
         legend.key.width =  unit(.3, 'cm'))
 
 ggsave(lake_area_change, path = ".",
-       filename = "./output/figures/tau_lake_area_global_plot.jpg",
+       filename = "./output/figures/sens_slope_lake_area_global_plot.jpg",
        width = 14, height = 8, device='jpg', dpi=1000)
 
 lake_area_change <-
