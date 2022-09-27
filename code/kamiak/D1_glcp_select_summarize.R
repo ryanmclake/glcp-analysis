@@ -116,10 +116,10 @@ read_csv_arrow(paste0("./data/countries/",country[5],".csv"),
 #collecting so it is in arrow table format
    collect() %>%
 #exporting file
-   write.table(., file = paste0("./output/glcp_slim_yearly_median.csv"),
+   write.table(., file = paste0("./output/D1_glcp_slim_yearly_median.csv"),
                append = T,
                row.names = F,
-               col.names = !file.exists("./output/glcp_slim_yearly_median.csv"))
+               col.names = !file.exists("./output/D1_glcp_slim_yearly_median.csv"))
 
 #### Time check ####
 e <- Sys.time()
