@@ -13,9 +13,9 @@ c <- d %>% select(hylak_id, bsn_lvl, lake_area, sub_area) %>%
   mutate(q05 = quantile(log_ratio, 0.05)) %>%
   mutate(area_cutoff = ifelse(log_ratio > q05, "KEEP", "REMOVE")) %>%
   ungroup(.) %>%
-  select(hylak_id, area_cutoff)
+  select(hylak_id, area_cutoff) %>% unique()
 
-left_join(d, c, by = "hylak_id") %>%
+l <- left_join(d, c, by = "hylak_id") %>%
   write.table(., file = paste0("./output/D3_glcp_slim_kendall_add_cutoff.csv"),
               append = T,
               row.names = F,

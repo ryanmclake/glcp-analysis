@@ -17,7 +17,7 @@ library(broom, warn.conflicts = FALSE)
 library(Kendall, warn.conflicts = FALSE)
 
 #### Bringing in 'glcp slim' data set ####
-d <- vroom::vroom("./output/glcp_slim_yearly_median.csv")
+d <- vroom::vroom("./output/D1_glcp_slim_yearly_median.csv")
 
 #### Calculating kendall tau for each lake ####
 
