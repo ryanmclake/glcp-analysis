@@ -46,7 +46,7 @@ country <- gsub("\\..*", "", country)
 
 #imports using 'arrow' 
     # calls columsn f#. We maintain this until we rename before exporting
-d1 <- read_csv_arrow(paste0("./data/countries/",country[5],".csv"),   
+read_csv_arrow(paste0("./data/countries/",country[5],".csv"),   
     quote = "\"",                               
     escape_double = TRUE,
     escape_backslash = FALSE,
@@ -67,11 +67,11 @@ d1 <- read_csv_arrow(paste0("./data/countries/",country[5],".csv"),
   collect() %>% 
 #selecting columns of interest
   select(f0, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
-                    f13, f14, f15, f25, f30, f39, f40, f41, f42, f47, f48) %>% 
+                    f13, f14, f15, f18, f25, f30, f39, f40, f41, f42, f47, f48) %>% 
 #grouping by variables so we can calculate yearly values
    #primary grouping variables are 'year' (f0) and 'hylak_id' (f2)
       #extra variables are categories we want to keep: 'centr_lat', 'centr_lon', 'continent', 'country', 'bsn_lvl', 'hybas_id'
-  group_by(f0, f2, f3, f4, f5, f6, f7, f8, f25, f30) %>%
+  group_by(f0, f2, f3, f4, f5, f6, f7, f8, f18, f25, f30) %>%
 #summarizing observations at each lake by year 
    #using 'median' as our summary statistic 
   summarize(f9 = median(f9, na.rm = T),
@@ -103,6 +103,7 @@ d1 <- read_csv_arrow(paste0("./data/countries/",country[5],".csv"),
          seasonal_km2=f13,
          permanent_km2=f14,
          total_km2=f15,
+         lake_area=f18,
          elevation=f25,
          sub_area=f30,
          ice_cover_min=f39,
