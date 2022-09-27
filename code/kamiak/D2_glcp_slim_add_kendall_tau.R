@@ -7,7 +7,6 @@ library(Kendall, warn.conflicts = FALSE)
 
 d <- vroom::vroom("./output/glcp_slim_yearly_median.csv")
 
-
 k <- d %>% select(hylak_id, permanent_km2) %>%
   group_by(hylak_id) %>%
   summarise(across(c(1),  ~list(MannKendall(.) %>%
