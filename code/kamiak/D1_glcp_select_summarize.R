@@ -27,7 +27,7 @@ read_csv_arrow(paste0("./data/countries/glcp_extended.csv"),
   collect() %>% 
   select(f0, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
                     f13, f14, f15, f25, f38, f39, f40, f41, f42, f47, f48)%>% 
-  group_by(f0, f2, f3, f4, f5, f6, f7, f8) %>%
+  group_by(f0, f2, f3, f4, f5, f6, f7, f8, f25) %>%
   summarize(f9 = median(f9, na.rm = T),
             f10 = median(f10, na.rm = T),
             f11 = median(f11, na.rm = T),
@@ -35,7 +35,6 @@ read_csv_arrow(paste0("./data/countries/glcp_extended.csv"),
             f13 = median(f13, na.rm = T),
             f14 = median(f14, na.rm = T),
             f15 = median(f15, na.rm = T),
-            f25 = median(f25, na.rm = T),
             f38 = median(f38, na.rm = T),
             f39 = median(f39, na.rm = T),
             f40 = median(f40, na.rm = T),
