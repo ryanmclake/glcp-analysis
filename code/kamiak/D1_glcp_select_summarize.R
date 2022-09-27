@@ -18,7 +18,6 @@
             # permanent_km2,
             # total_km2,
             # elevation,             
-            # above_ratio_cutoff,
             # ice_cover_min,
             # ice_cover_max,
             # ice_cover_mean,
