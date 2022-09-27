@@ -31,7 +31,7 @@
 
 # =======================================================================
 #------------------------------------------------------------------------
-
+#### initial time for script start #### 
 s = Sys.time()
 
 #### Libraries #### 
@@ -64,12 +64,17 @@ read_csv_arrow(paste0("./data/countries/",country[6],".csv"),
     read_options = NULL,
     as_data_frame = TRUE,
     timestamp_parsers = NULL) %>%
-#collect so it is in simple format
+#collecting so it is in arrow table format
   collect() %>% 
 #selecting columns of interest
   select(f0, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
-                    f13, f14, f15, f25, f38, f39, f40, f41, f42, f47, f48)%>% 
+                    f13, f14, f15, f25, f38, f39, f40, f41, f42, f47, f48) %>% 
+#grouping by variables so we can calculate yearly values
+   #primary grouping variables are 'year' (f0) and 'hylak_id' (f2)
+      #extra variables are categories we want to keep: 'centr_lat', 'centr_lon', 'continent', 'country', 'bsn_lvl', 'hybas_id'
   group_by(f0, f2, f3, f4, f5, f6, f7, f8, f25) %>%
+#summarizing observations at each lake by year 
+   #using 'median' as our summary statistic 
   summarize(f9 = median(f9, na.rm = T),
             f10 = median(f10, na.rm = T),
             f11 = median(f11, na.rm = T),
@@ -84,6 +89,7 @@ read_csv_arrow(paste0("./data/countries/",country[6],".csv"),
             f42 = median(f42, na.rm = T),
             f47 = median(f47, na.rm = T),
             f48 = median(f48, na.rm = T)) %>%
+#renaming columns back to sensible names
   rename(year = f0,
          hylak_id=f2,
          centr_lat=f3,
@@ -107,12 +113,15 @@ read_csv_arrow(paste0("./data/countries/",country[6],".csv"),
          ice_cover_median=f42,
          ice_cover_count=f47,
          snow_km2=f48) %>%
-      collect() %>%
-      write.table(., file = paste0("./output/glcp_slim_yearly_median.csv"),
-                  append = T,
-                  row.names = F,
-                  col.names = !file.exists("./output/glcp_slim_yearly_median.csv"))
+#collecting so it is in arrow table format
+   collect() %>%
+#exporting file
+   write.table(., file = paste0("./output/glcp_slim_yearly_median.csv"),
+               append = T,
+               row.names = F,
+               col.names = !file.exists("./output/glcp_slim_yearly_median.csv"))
 
+#### Time check ####
 e <- Sys.time()
 t=e-s
 print(t)
