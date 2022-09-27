@@ -4,10 +4,10 @@ library(arrow, warn.conflicts = FALSE)
 library(dplyr, warn.conflicts = FALSE)
 library(tidyr, warn.conflicts = FALSE)
 
-country <- list.files(path = "./data/countries")
-country <- gsub("\\..*", "", country)
+# country <- list.files(path = "./data/countries")
+# country <- gsub("\\..*", "", country)
 
-read_csv_arrow(paste0("./data/countries/",country[1],".csv"),
+read_csv_arrow(paste0("./data/countries/glcp_extended.csv"),
     quote = "\"",
     escape_double = TRUE,
     escape_backslash = FALSE,
