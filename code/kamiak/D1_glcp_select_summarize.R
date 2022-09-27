@@ -1,14 +1,54 @@
+# script selects columns of interest from GLCP 2.0 
+
+   # selects columns 
+        #columns of interest are:  
+            # year,
+            # hylak_id,
+            # centr_lat,
+            # centr_lon,
+            # continent,
+            # country,
+            # bsn_lvl,
+            # hybas_id,
+            # mean_monthly_precip_mm,
+            # total_precip_mm,
+            # mean_annual_temp_k,
+            # pop_sum,
+            # seasonal_km2,
+            # permanent_km2,
+            # total_km2,
+            # elevation,             
+            # above_ratio_cutoff,
+            # ice_cover_min,
+            # ice_cover_max,
+            # ice_cover_mean,
+            # ice_cover_median,
+            # ice_cover_count,
+            # snow_km2
+
+   # calculates yearly median 
+   # exports
+
+# =======================================================================
+#------------------------------------------------------------------------
+
 s = Sys.time()
 
+#### Libraries #### 
 library(arrow, warn.conflicts = FALSE)
 library(dplyr, warn.conflicts = FALSE)
 library(tidyr, warn.conflicts = FALSE)
 
+#### country partition for running in parallel if needed ####
 # country <- list.files(path = "./data/countries")
 # country <- gsub("\\..*", "", country)
 
-read_csv_arrow(paste0("./data/countries/glcp_extended.csv"),
-    quote = "\"",
+#### Import, select, summarize, export ####
+
+#imports using 'arrow' 
+    # calls columsn f#. We maintain this until we rename before exporting
+read_csv_arrow(paste0("./data/countries/glcp_extended.csv"),   
+    quote = "\"",                               
     escape_double = TRUE,
     escape_backslash = FALSE,
     schema = NULL,
@@ -24,9 +64,12 @@ read_csv_arrow(paste0("./data/countries/glcp_extended.csv"),
     read_options = NULL,
     as_data_frame = TRUE,
     timestamp_parsers = NULL) %>%
+#collect so it is in simple format
   collect() %>% 
+#selecting columns of interest
   select(f0, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
-                    f13, f14, f15, f25, f38, f39, f40, f41, f42, f47, f48)%>% 
+                    f13, f14, f15, f25, f38, f39, f40, f41, f42, f47, f48) %>%
+#grouping 
   group_by(f0, f2, f3, f4, f5, f6, f7, f8) %>%
   summarize(f9 = median(f9, na.rm = T),
             f10 = median(f10, na.rm = T),
