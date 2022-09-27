@@ -40,14 +40,14 @@ library(dplyr, warn.conflicts = FALSE)
 library(tidyr, warn.conflicts = FALSE)
 
 #### country partition for running in parallel if needed ####
-# country <- list.files(path = "./data/countries")
-# country <- gsub("\\..*", "", country)
+country <- list.files(path = "./data/countries")
+country <- gsub("\\..*", "", country)
 
 #### Import, select, summarize, export ####
 
 #imports using 'arrow' 
     # calls columsn f#. We maintain this until we rename before exporting
-read_csv_arrow(paste0("./data/countries/glcp_extended.csv"),   
+read_csv_arrow(paste0("./data/countries/",country[6],".csv"),   
     quote = "\"",                               
     escape_double = TRUE,
     escape_backslash = FALSE,
@@ -68,14 +68,8 @@ read_csv_arrow(paste0("./data/countries/glcp_extended.csv"),
   collect() %>% 
 #selecting columns of interest
   select(f0, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
-<<<<<<< HEAD
                     f13, f14, f15, f25, f38, f39, f40, f41, f42, f47, f48)%>% 
   group_by(f0, f2, f3, f4, f5, f6, f7, f8, f25) %>%
-=======
-                    f13, f14, f15, f25, f38, f39, f40, f41, f42, f47, f48) %>%
-#grouping 
-  group_by(f0, f2, f3, f4, f5, f6, f7, f8) %>%
->>>>>>> 28de1c6f2cb498453f81804d17a7161b62e421c2
   summarize(f9 = median(f9, na.rm = T),
             f10 = median(f10, na.rm = T),
             f11 = median(f11, na.rm = T),
