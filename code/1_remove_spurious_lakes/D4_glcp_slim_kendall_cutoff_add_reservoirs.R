@@ -1,9 +1,6 @@
 
-library(dplyr, warn.conflicts = FALSE)
-library(tidyr, warn.conflicts = FALSE)
-library(vroom, warn.conflicts = FALSE)
-library(sf, warn.conflicts = FALSE)
-library(units, warn.conflicts = FALSE)
+#### initial time for script start #### 
+s = Sys.time()
 
 d <- vroom::vroom("./output/D3_glcp_slim_kendall_add_cutoff.csv")
 
@@ -28,9 +25,14 @@ dams_to_remove <- dam_glcp_link %>%
   select(-geometry.1) %>% unique()
 
 left_join(d, dams_to_remove, by = "hylak_id") %>%
-  mutate(reservoir = ifelse(dist <= 5000, "RESERVOIR", "LAKE")) %>%
+  mutate(water_body_type = ifelse(dist <= 5000, "RESERVOIR", "LAKE")) %>%
   select(-dist) %>% 
   write.table(., file = paste0("./output/D4_glcp_slim_kendall_cutoff_add_reservoir.csv"),
               append = T,
               row.names = F,
               col.names = !file.exists("./output/D4_glcp_slim_kendall_cutoff_add_reservoir.csv"))
+
+#### Time check ####
+e <- Sys.time()
+t=e-s
+print(t)

@@ -13,10 +13,8 @@
 # =======================================================================
 #------------------------------------------------------------------------
 
-#### Libraries ####
-library(dplyr, warn.conflicts = FALSE)
-library(tidyr, warn.conflicts = FALSE)
-library(vroom, warn.conflicts = FALSE)
+#### initial time for script start #### 
+s = Sys.time()
 
 #### Bringing in the data set ####
 d <- vroom::vroom("./output/D2_glcp_slim_add_kendall_tau.csv")
@@ -53,3 +51,8 @@ left_join(d, c, by = "hylak_id") %>%
               append = T,
               row.names = F,
               col.names = !file.exists("./output/D3_glcp_slim_kendall_add_cutoff.csv"))
+
+#### Time check ####
+e <- Sys.time()
+t=e-s
+print(t)

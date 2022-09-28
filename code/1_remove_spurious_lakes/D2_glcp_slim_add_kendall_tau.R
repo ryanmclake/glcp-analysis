@@ -8,13 +8,8 @@
 
 # =======================================================================
 #------------------------------------------------------------------------
-
-#### Libraries ####
-library(dplyr, warn.conflicts = FALSE)
-library(tidyr, warn.conflicts = FALSE)
-library(vroom, warn.conflicts = FALSE)
-library(broom, warn.conflicts = FALSE)
-library(Kendall, warn.conflicts = FALSE)
+#### initial time for script start #### 
+s = Sys.time()
 
 #### Bringing in 'glcp slim' data set ####
 d <- vroom::vroom("./output/D1_glcp_slim_yearly_median.csv")
@@ -46,3 +41,8 @@ left_join(d, k, by = "hylak_id") %>%
               append = T,
               row.names = F,
               col.names = !file.exists("./output/D2_glcp_slim_add_kendall_tau.csv"))
+
+#### Time check ####
+e <- Sys.time()
+t=e-s
+print(t)

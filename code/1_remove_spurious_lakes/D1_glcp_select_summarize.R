@@ -36,9 +36,13 @@
 s = Sys.time()
 
 #### Libraries #### 
-library(arrow, warn.conflicts = FALSE)
 library(dplyr, warn.conflicts = FALSE)
 library(tidyr, warn.conflicts = FALSE)
+library(vroom, warn.conflicts = FALSE)
+library(sf, warn.conflicts = FALSE)
+library(units, warn.conflicts = FALSE)
+library(broom, warn.conflicts = FALSE)
+library(Kendall, warn.conflicts = FALSE)
 
 #### country partition for running in parallel if needed ####
 country <- list.files(path = "./data/countries")
