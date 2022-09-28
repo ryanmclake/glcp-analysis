@@ -20,7 +20,7 @@ dam_glcp_link <- d2 %>%
   cbind(dam_data[st_nearest_feature(d2, dam_data),]) %>%
   mutate(dist = st_distance(geometry, geometry.1, by_element = T))
 
-# units are in meters --> Removing the units so I can work with the columns
+# units are in meters --> Removing the units so I can work with the column in the left_join function
 dam_glcp_link$dist <- drop_units(dam_glcp_link$dist)
 
 dams_to_remove <- dam_glcp_link %>% 
