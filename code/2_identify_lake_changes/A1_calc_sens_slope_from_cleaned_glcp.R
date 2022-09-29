@@ -9,9 +9,10 @@ d <- vroom::vroom("./output/D5_glcp_slim_kendall_cutoff_reservoir_filtered.csv")
 
 # Quantify the sen's slope (non-parametric)
 # Only selecting the hylak_id and total_km2
-s <- d %>% select(hylak_id, total_km2) %>%
+s <- d %>% 
+  dplyr::select(hylak_id, total_km2) %>%
   # Grouping by hylak_id
-  group_by(hylak_id) %>%
+  dplyr::group_by(hylak_id) %>%
   # Summarizing and calculating the sens slope from the trend package
   summarise(across(c(1),  ~list(sens.slope(ts(.)) %>%
                                   glance(.)))) %>%
