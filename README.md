@@ -16,4 +16,4 @@ We developed a workflow that analyzes the magnitude and direction of lake area c
 
 ### There are 4 major data processes currently in production. 
 
-
+<a href="url"><img src = "glcp_workflow.png" align="center" height="400" width="600" ></a>
