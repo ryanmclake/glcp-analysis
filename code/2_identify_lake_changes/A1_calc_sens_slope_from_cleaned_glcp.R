@@ -4,6 +4,7 @@ library(trend, warn.conflicts = FALSE)
 library(broom, warn.conflicts = FALSE)
 library(dplyr, warn.conflicts = FALSE)
 
+
 # Load in the dataset that has all of the spurious lakes and reservoirs removed
 d <- vroom::vroom("./output/D5_glcp_slim_kendall_cutoff_reservoir_filtered.csv")
 
@@ -14,14 +15,11 @@ s <- d %>%
   # Grouping by hylak_id
   dplyr::group_by(hylak_id) %>%
   # Summarizing and calculating the sens slope from the trend package
-  summarise(across(c(1),  ~list(sens.slope(ts(.)) %>%
-                                  glance(.)))) %>%
-  ungroup(.) %>%
-  # unnest the tibbled DF
-  unnest(c(2), names_repair = "minimal") %>%
-  # manually kludge the sens slope (NEED TO FIGURE THIS OUT) Its s list issue
-  mutate(sens.slope = (conf.low+conf.high)/2) %>%
-  # select the lake id, p value, and sens slope value
+  summarise(across(c(1),  ~list(sens.slope(ts(.))))) %>%
+  dplyr::group_by(hylak_id) %>%
+  mutate(sens.slope = unlist(purrr::map(total_km2, "estimates")),
+         p.value = unlist(purrr::map(total_km2, "p.value"))) %>%
+  select(-total_km2) %>%
   select(hylak_id, p.value, sens.slope) %>%
   # Collect makes it run faster
   collect() 

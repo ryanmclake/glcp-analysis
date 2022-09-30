@@ -26,7 +26,7 @@ ecoregion <- read_sf(file.path(Dir.Base,"data","shapes", "WWF_ecoregions", "offi
   filter(BIOME != "LAKE") %>%
   select(-BIOME)
 
-d <- vroom::vroom("./output/A2_glcp_filtered_significant_sens_slopes.csv") 
+d <- vroom::vroom("./output/A2_glcp_filtered_significant_sens_slopes_for_modeling.csv") 
 
 d2 <- d %>%
   select(hylak_id, centr_lon, centr_lat) %>%
@@ -41,8 +41,8 @@ link <- d2 %>%
   select(-geometry.1, -dist) %>%
   unique()
 
-left_join(d, link, by = "hylak_id") %>%
-  write.table(., file = paste0("./output/A3_glcp_filtered_biomes_joined.csv"),       
+s <- left_join(d, link, by = "hylak_id") %>%
+  write.table(., file = paste0("./output/A3_glcp_filtered_biomes_joined.csv"),
               append = T,
               row.names = F,
               col.names = !file.exists("./output/A3_glcp_filtered_biomes_joined.csv"))

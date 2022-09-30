@@ -43,6 +43,7 @@ library(sf, warn.conflicts = FALSE)
 library(units, warn.conflicts = FALSE)
 library(broom, warn.conflicts = FALSE)
 library(Kendall, warn.conflicts = FALSE)
+library(arrow, warn.conflicts = FALSE)
 
 #### country partition for running in parallel if needed ####
 country <- list.files(path = "./data/countries")

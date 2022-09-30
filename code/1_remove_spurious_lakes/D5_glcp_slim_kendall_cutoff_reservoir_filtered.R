@@ -5,6 +5,7 @@ vroom::vroom("./output/D4_glcp_slim_kendall_cutoff_add_reservoir.csv") %>%
   filter(kendall_tau < 1) %>%
   filter(area_cutoff == "KEEP") %>%
   filter(water_body_type == "LAKE") %>%
+  # add a select() minus these columns
   write.table(., file = paste0("./output/D5_glcp_slim_kendall_cutoff_reservoir_filtered.csv"),
               append = T,
               row.names = F,
