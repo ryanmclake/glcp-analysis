@@ -1,13 +1,26 @@
 
-# Load libraries
+# script calculates sens slope and p value for lake change, based on the GLCP_glim_kendall_cutoff_reservoir_filtered dataset
+  # glcp slim kendall cutoff reservoir filtered is the GLCP 2.0 with only the columns of interest, and the spurious lakes based on kendall tau, size, and reservoir status removed
+  # script: 
+     # loads dataset
+     # selects lake id and total km surface area columns
+     # calculates sens slope and p values
+     # joins with origional data set 
+     # exports
+
+# =======================================================================
+#------------------------------------------------------------------------
+
+#### Load libraries ####
 library(trend, warn.conflicts = FALSE)
 library(broom, warn.conflicts = FALSE)
 library(dplyr, warn.conflicts = FALSE)
 
-
+#### Bringingin the data set ####
 # Load in the dataset that has all of the spurious lakes and reservoirs removed
 d <- vroom::vroom("./output/D5_glcp_slim_kendall_cutoff_reservoir_filtered.csv")
 
+#### Calculating Senes slope and p value ####
 # Quantify the sen's slope (non-parametric)
 # Only selecting the hylak_id and total_km2
 s <- d %>% 
@@ -24,6 +37,7 @@ s <- d %>%
   # Collect makes it run faster
   collect() 
 
+#### Joining and exporting ####
 # Join with the original DF and make a new column that specifies what sens slopes
 # are significant. These significant slopes will be filtered in the next script
 left_join(d, s, by = "hylak_id") %>%
