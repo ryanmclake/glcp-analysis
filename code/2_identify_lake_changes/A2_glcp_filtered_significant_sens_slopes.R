@@ -1,3 +1,12 @@
+# script selects lakes which are changing (swelling or shrinking) from the GLCP filtered add sense slope data
+  # GLCP filtered add sense slope is the analysis data set with sense slope and p value calculated
+  # script: 
+     # loads dataset
+     # selects lakes which have significant slopes based on P value (sis_sens_slope column is categorical column identifying significant slopes) 
+     # exports
+
+# =======================================================================
+#------------------------------------------------------------------------
 
 # Filter only the significant sen's slopes to link with the WWF global Ecoregions
 
