@@ -1,5 +1,6 @@
 # script selects columns of interest from GLCP 2.0 
 
+
    # selects columns 
         #columns of interest are:  
             # year,
