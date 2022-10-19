@@ -43,16 +43,17 @@ library(units, warn.conflicts = FALSE)
 library(broom, warn.conflicts = FALSE)
 library(Kendall, warn.conflicts = FALSE)
 library(arrow, warn.conflicts = FALSE)
+library(doParallel, warn.conflicts = FALSE)
 
 #### country partition for running in parallel if needed ####
 country <- list.files(path = "./data/countries")
 country <- gsub("\\..*", "", country)
 
 #### Import, select, summarize, export ####
-
+analysis_function <- function(x){
 #imports using 'arrow' 
-    # calls columsn f#. We maintain this until we rename before exporting
-read_csv_arrow(paste0("./data/countries/",country[5],".csv"),   
+    # calls columns f#. We maintain this until we rename before exporting
+read_csv_arrow(paste0("./data/countries/",country[1],".csv"),   
     quote = "\"",                               
     escape_double = TRUE,
     escape_backslash = FALSE,
@@ -125,6 +126,12 @@ read_csv_arrow(paste0("./data/countries/",country[5],".csv"),
                append = T,
                row.names = F,
                col.names = !file.exists("./output/D1_glcp_slim_yearly_median.csv"))
+}
+
+no_cores <- detectCores() - 2
+cl <- makeCluster(no_cores, type="FORK")
+registerDoParallel(cl)
+foreach(x=country) %dopar% analysis_function(x)
 
 #### Time check ####
 e <- Sys.time()

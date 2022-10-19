@@ -18,7 +18,7 @@ d <- vroom::vroom("./output/D1_glcp_slim_yearly_median.csv")
 
 k <- d %>% 
 #selecting columns
-select(hylak_id, permanent_km2) %>%
+  select(hylak_id, permanent_km2) %>%
 #grouping by lake id
   group_by(hylak_id) %>%
 #calculating kendall tau
