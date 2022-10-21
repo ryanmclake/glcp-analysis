@@ -4,7 +4,7 @@ d <- vroom::vroom("./output/A3_glcp_filtered_biomes_joined.csv")
 
 swell_desert <- d %>% filter(sens.slope > 0) %>% filter(biome_type == "DESERT") %>%
   select(hylak_id, hybas_id, centr_lat, centr_lon, total_km2, total_precip_mm, mean_annual_temp_k, pop_sum) %>%
-  group_by(hybas_id, hylak_id, centr_lat, centr_lon) %>%
+  group_by(hylak_id, hybas_id,  centr_lat, centr_lon) %>%
   mutate(total_km2 = scale(total_km2),
          total_precip_mm = scale(total_precip_mm),
          mean_annual_temp_k = scale(mean_annual_temp_k),
@@ -19,11 +19,13 @@ swell_desert <- d %>% filter(sens.slope > 0) %>% filter(biome_type == "DESERT") 
          pop = summary(mod)$coefficients[4],
          p.val.pop = summary(mod)$coefficients["pop_sum", "Pr(>|t|)"],
          r_sqr = summary(mod)$adj.r.squared)%>%
-  select(-mod)
+  select(-mod, -hylak_id) %>%
+  group_by(hybas_id, centr_lat, centr_lon) %>%
+  summarize_all(funs(mean), na.rm = T)
 
 shrink_desert <- d %>% filter(sens.slope < 0) %>% filter(biome_type == "DESERT") %>%
   select(hylak_id, hybas_id, centr_lat, centr_lon, total_km2, total_precip_mm, mean_annual_temp_k, pop_sum) %>%
-  group_by(hybas_id, hylak_id, centr_lat, centr_lon) %>%
+  group_by(hylak_id, hybas_id,  centr_lat, centr_lon) %>%
   mutate(total_km2 = scale(total_km2),
          total_precip_mm = scale(total_precip_mm),
          mean_annual_temp_k = scale(mean_annual_temp_k),
@@ -38,12 +40,14 @@ shrink_desert <- d %>% filter(sens.slope < 0) %>% filter(biome_type == "DESERT")
          pop = summary(mod)$coefficients[4],
          p.val.pop = summary(mod)$coefficients["pop_sum", "Pr(>|t|)"],
          r_sqr = summary(mod)$adj.r.squared)%>%
-  select(-mod)
+  select(-mod, -hylak_id) %>%
+  group_by(hybas_id, centr_lat, centr_lon) %>%
+  summarize_all(funs(mean), na.rm = T)
 
 
 swell_tropical <- d %>% filter(sens.slope > 0) %>% filter(biome_type == "TROPICAL") %>%
   select(hylak_id, hybas_id, centr_lat, centr_lon, total_km2, total_precip_mm, mean_annual_temp_k, pop_sum) %>%
-  group_by(hybas_id, hylak_id, centr_lat, centr_lon) %>%
+  group_by(hylak_id, hybas_id,  centr_lat, centr_lon) %>%
   mutate(total_km2 = scale(total_km2),
          total_precip_mm = scale(total_precip_mm),
          mean_annual_temp_k = scale(mean_annual_temp_k),
@@ -58,11 +62,13 @@ swell_tropical <- d %>% filter(sens.slope > 0) %>% filter(biome_type == "TROPICA
          pop = summary(mod)$coefficients[4],
          p.val.pop = summary(mod)$coefficients["pop_sum", "Pr(>|t|)"],
          r_sqr = summary(mod)$adj.r.squared)%>%
-  select(-mod)
+  select(-mod, -hylak_id) %>%
+  group_by(hybas_id, centr_lat, centr_lon) %>%
+  summarize_all(funs(mean), na.rm = T)
 
 shrink_tropical <- d %>% filter(sens.slope < 0) %>% filter(biome_type == "TROPICAL") %>%
   select(hylak_id, hybas_id, centr_lat, centr_lon, total_km2, total_precip_mm, mean_annual_temp_k, pop_sum) %>%
-  group_by(hybas_id, hylak_id, centr_lat, centr_lon) %>%
+  group_by(hylak_id, hybas_id,  centr_lat, centr_lon) %>%
   mutate(total_km2 = scale(total_km2),
          total_precip_mm = scale(total_precip_mm),
          mean_annual_temp_k = scale(mean_annual_temp_k),
@@ -77,11 +83,13 @@ shrink_tropical <- d %>% filter(sens.slope < 0) %>% filter(biome_type == "TROPIC
          pop = summary(mod)$coefficients[4],
          p.val.pop = summary(mod)$coefficients["pop_sum", "Pr(>|t|)"],
          r_sqr = summary(mod)$adj.r.squared)%>%
-  select(-mod)
+  select(-mod, -hylak_id) %>%
+  group_by(hybas_id, centr_lat, centr_lon) %>%
+  summarize_all(funs(mean), na.rm = T)
 
 swell_temperate <- d %>% filter(sens.slope > 0) %>% filter(biome_type == "TEMPERATE") %>%
   select(hylak_id, hybas_id, centr_lat, centr_lon, total_km2, total_precip_mm, mean_annual_temp_k, pop_sum) %>%
-  group_by(hybas_id, hylak_id, centr_lat, centr_lon) %>%
+  group_by(hylak_id, hybas_id,  centr_lat, centr_lon) %>%
   mutate(total_km2 = scale(total_km2),
          total_precip_mm = scale(total_precip_mm),
          mean_annual_temp_k = scale(mean_annual_temp_k),
@@ -96,11 +104,13 @@ swell_temperate <- d %>% filter(sens.slope > 0) %>% filter(biome_type == "TEMPER
          pop = summary(mod)$coefficients[4],
          p.val.pop = summary(mod)$coefficients["pop_sum", "Pr(>|t|)"],
          r_sqr = summary(mod)$adj.r.squared)%>%
-  select(-mod)
+  select(-mod, -hylak_id) %>%
+  group_by(hybas_id, centr_lat, centr_lon) %>%
+  summarize_all(funs(mean), na.rm = T)
 
 shrink_temperate <- d %>% filter(sens.slope < 0) %>% filter(biome_type == "TEMPERATE") %>%
   select(hylak_id, hybas_id, centr_lat, centr_lon, total_km2, total_precip_mm, mean_annual_temp_k, pop_sum) %>%
-  group_by(hybas_id, hylak_id, centr_lat, centr_lon) %>%
+  group_by(hylak_id, hybas_id,  centr_lat, centr_lon) %>%
   mutate(total_km2 = scale(total_km2),
          total_precip_mm = scale(total_precip_mm),
          mean_annual_temp_k = scale(mean_annual_temp_k),
@@ -115,11 +125,13 @@ shrink_temperate <- d %>% filter(sens.slope < 0) %>% filter(biome_type == "TEMPE
          pop = summary(mod)$coefficients[4],
          p.val.pop = summary(mod)$coefficients["pop_sum", "Pr(>|t|)"],
          r_sqr = summary(mod)$adj.r.squared)%>%
-  select(-mod)
+  select(-mod, -hylak_id) %>%
+  group_by(hybas_id, centr_lat, centr_lon) %>%
+  summarize_all(funs(mean), na.rm = T)
 
 swell_boreal <- d %>% filter(sens.slope > 0) %>% filter(biome_type == "BOREAL/TUNDRA/ICE") %>%
   select(hylak_id, hybas_id, centr_lat, centr_lon, total_km2, total_precip_mm, mean_annual_temp_k, pop_sum) %>%
-  group_by(hybas_id, hylak_id, centr_lat, centr_lon) %>%
+  group_by(hylak_id, hybas_id,  centr_lat, centr_lon) %>%
   mutate(total_km2 = scale(total_km2),
          total_precip_mm = scale(total_precip_mm),
          mean_annual_temp_k = scale(mean_annual_temp_k),
@@ -134,7 +146,9 @@ swell_boreal <- d %>% filter(sens.slope > 0) %>% filter(biome_type == "BOREAL/TU
          pop = summary(mod)$coefficients[4],
          p.val.pop = summary(mod)$coefficients["pop_sum", "Pr(>|t|)"],
          r_sqr = summary(mod)$adj.r.squared)%>%
-  select(-mod)
+  select(-mod, -hylak_id) %>%
+  group_by(hybas_id, centr_lat, centr_lon) %>%
+  summarize_all(funs(mean), na.rm = T)
 
 # shrink_boreal <- d %>% filter(sens.slope < 0) %>% filter(biome_type == "BOREAL/TUNDRA/ICE") %>%
 #   select(hylak_id, hybas_id, centr_lat, centr_lon, total_km2, total_precip_mm, mean_annual_temp_k, pop_sum) %>%
