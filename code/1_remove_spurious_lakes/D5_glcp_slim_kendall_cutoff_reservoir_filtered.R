@@ -23,11 +23,6 @@ vroom::vroom("./output/D4_glcp_slim_kendall_cutoff_add_reservoir.csv") %>%
   filter(area_cutoff == "KEEP") %>%
 #select lakes tagged as LAKE
   filter(water_body_type == "LAKE") %>%
-<<<<<<< HEAD
-  # add a select() minus these columns
-=======
-#exports
->>>>>>> 0396cc30120bad36798b69ee87a27c8ea425a0b7
   write.table(., file = paste0("./output/D5_glcp_slim_kendall_cutoff_reservoir_filtered.csv"),
               append = T,
               row.names = F,

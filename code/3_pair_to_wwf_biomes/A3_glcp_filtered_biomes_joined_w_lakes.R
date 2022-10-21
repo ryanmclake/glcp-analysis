@@ -41,7 +41,7 @@ link <- d2 %>%
   select(-geometry.1, -dist) %>%
   unique()
 
-s <- left_join(d, link, by = "hylak_id") %>%
+left_join(d, link, by = "hylak_id") %>%
   write.table(., file = paste0("./output/A3_glcp_filtered_biomes_joined.csv"),
               append = T,
               row.names = F,

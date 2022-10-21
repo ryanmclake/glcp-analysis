@@ -27,6 +27,8 @@ s <- d %>%
   dplyr::select(hylak_id, total_km2) %>%
   # Grouping by hylak_id
   dplyr::group_by(hylak_id) %>%
+  mutate(total_km2 = scale(total_km2)) %>%
+  na.omit(.) %>%
   # Summarizing and calculating the sens slope from the trend package
   summarise(across(c(1),  ~list(sens.slope(ts(.))))) %>%
   dplyr::group_by(hylak_id) %>%
