@@ -118,7 +118,9 @@ read_csv_arrow(paste0("./data/countries/",x,".csv"),
                                                     ice_cover_binary_median=f46,
                                                     ice_cover_count=f47,
                                                     snow_km2=f48) %>%
-    group_by(year, hylak_id, centr_lat, centr_lon,continent, country, bsn_lvl, hybas_id, elevation, sub_area, lake_area) %>%
+    group_by(year, hylak_id, centr_lat, centr_lon,continent, country, bsn_lvl, hybas_id, 
+             elevation, sub_area, lake_area, slope_100, depth_avg, shore_dev) %>%
+    filter(year>=2000) %>%
 #summarizing observations at each lake by year 
    #using 'median' as our summary statistic 
   summarize(mean_monthly_precip_mm = median(mean_monthly_precip_mm, na.rm = T),
@@ -133,7 +135,9 @@ read_csv_arrow(paste0("./data/countries/",x,".csv"),
             ice_cover_mean = median(ice_cover_mean, na.rm = T),
             ice_cover_median = median(ice_cover_median, na.rm = T),
             ice_cover_count = median(ice_cover_count, na.rm = T),
-            snow_km2 = median(snow_km2, na.rm = T)) %>%
+            mean_spec_humidity = median(mean_spec_humidity, na.rm = T),
+            mean_sw_wm2 = median(mean_sw_wm2, na.rm = T),
+            mean_lw_wm2 = median(mean_lw_wm2, na.rm = T)) %>%
 #renaming columns back to sensible names
 #collecting so it is in arrow table format
    collect() %>%
@@ -144,7 +148,7 @@ read_csv_arrow(paste0("./data/countries/",x,".csv"),
                col.names = !file.exists("./output/D1_glcp_slim_yearly_median.csv"))
 }
 
-no_cores <- detectCores() - 2
+no_cores <- detectCores() - 3
 cl <- makeCluster(no_cores, type="FORK")
 registerDoParallel(cl)
 foreach(x=country) %dopar% analysis_function(x)
