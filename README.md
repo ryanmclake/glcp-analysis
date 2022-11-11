@@ -2,11 +2,11 @@
 
 -----
 
-:busts_in_silhouette: Ryan McClure, Alli Cramer, Steve Katz
+:busts_in_silhouette: Alli Cramer, Steve Katz, Ryan McClure
 
-:busts_in_silhouette: Special thanks to: Michael Meyer, Matt Brousil, and Stephanie Hampton
+:busts_in_silhouette: Special thanks to:
 
-Questions?  :email: ryan.mcclure@wsu.edu
+Questions?  :email: 
 
 ## Motivation
 
