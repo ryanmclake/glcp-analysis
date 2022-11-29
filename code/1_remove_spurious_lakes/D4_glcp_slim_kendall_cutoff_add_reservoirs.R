@@ -18,12 +18,14 @@
 s = Sys.time()
 
 #### Bringing in GLCP data ####
-d <- vroom::vroom("./output/D3_glcp_slim_kendall_add_cutoff.csv")
+d <- vroom::vroom("/Volumes/SeagateBackupPlusDrive/D3_glcp_slim_kendall_add_cutoff_1.csv")
 
 #making data spatial
 d2 <- d %>% 
 #selecting columns   
-  select(hylak_id, centr_lon, centr_lat) %>%   
+  select(hylak_id, centr_lon, centr_lat) %>%
+  
+  na.omit(.) %>%
 #making spatial in lat lon
   st_as_sf(coords = c("centr_lon", "centr_lat"), crs = 4326) %>%
 #projecting

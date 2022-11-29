@@ -148,7 +148,7 @@ read_csv_arrow(paste0("./data/countries/",x,".csv"),
                col.names = !file.exists("./output/D1_glcp_slim_yearly_median.csv"))
 }
 
-no_cores <- detectCores() - 3
+no_cores <- detectCores()-2
 cl <- makeCluster(no_cores, type="FORK")
 registerDoParallel(cl)
 foreach(x=country) %dopar% analysis_function(x)
