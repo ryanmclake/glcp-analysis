@@ -10,25 +10,30 @@ source("./code/functions.R")
 
 biomes <- c("TEMPERATE","TROPICAL","DESERT","BOREAL/ICE/TUNDRA")
 
-for(i in 1:length(biomes)){
+# for(i in 1:length(biomes)){
+
+year_in_dat <- c("2000","2001", "2002", "2003", "2004", "2005", "2006", "2007",
+                 "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015")
+
 d <- vroom::vroom("./output/A3_glcp_filtered_biomes_joined.csv") %>%
+  filter(year %in% year_in_dat) %>%
   group_by(hylak_id) %>%
-  dplyr::mutate_at(vars(pop_sum),funs(imputeTS::na_interpolation(., option = "linear"))) %>%
+  #dplyr::mutate_at(vars(pop_sum),funs(imputeTS::na_interpolation(., option = "linear"))) %>%
   dplyr::mutate_at(vars(total_km2),funs(imputeTS::na_interpolation(., option = "linear"))) %>%
   dplyr::mutate(total_km2 = scale(total_km2) %>% as.vector()) %>%
   dplyr::mutate_at(vars(total_km2),funs(imputeTS::na_interpolation(., option = "linear"))) %>%
   dplyr::mutate(total_precip_mm = log(total_precip_mm+1) %>% as.vector()) %>%
   dplyr::mutate(mean_annual_temp_k = log(mean_annual_temp_k+1) %>% as.vector()) %>%
-  dplyr::mutate(pop_sum = log(pop_sum+1) %>% as.vector()) %>%
+  #dplyr::mutate(pop_sum = log(pop_sum+1) %>% as.vector()) %>%
   dplyr::mutate(ice_cover_median = log(ice_cover_median+1) %>% as.vector()) %>%
   dplyr::mutate(mean_spec_humidity = log(mean_spec_humidity+1) %>% as.vector()) %>%
   dplyr::mutate(mean_sw_wm2 = log(mean_sw_wm2+1) %>% as.vector()) %>%
   ungroup(.) %>%
   dplyr::mutate_at(vars(ice_cover_median),funs(imputeTS::na_interpolation(., option = "linear"))) %>%
   select(hylak_id, total_km2, total_precip_mm, mean_annual_temp_k, mean_spec_humidity,mean_sw_wm2,
-         pop_sum, elevation, shore_dev, slope_100, ice_cover_median, biome_type, centr_lat, centr_lon) %>%
+         elevation, shore_dev, slope_100, ice_cover_median, biome_type, centr_lat, centr_lon) %>%
   dplyr::group_by(hylak_id, elevation, shore_dev, slope_100, biome_type, centr_lat, centr_lon) %>%
-  summarise(across(c(1:7),  ~list(sens.slope(ts(.))))) %>%
+  summarise(across(c(1:6),  ~list(sens.slope(ts(.))))) %>%
   mutate(sens.slope.area = unlist(purrr::map(total_km2, "estimates")),
          sens.slope.precip = unlist(purrr::map(total_precip_mm, "estimates")),
          p.value.precip = unlist(purrr::map(total_precip_mm, "p.value")),
@@ -36,13 +41,13 @@ d <- vroom::vroom("./output/A3_glcp_filtered_biomes_joined.csv") %>%
          p.value.sw = unlist(purrr::map(mean_sw_wm2, "p.value")),
          sens.slope.temp = unlist(purrr::map(mean_annual_temp_k, "estimates")),
          p.value.temp = unlist(purrr::map(mean_annual_temp_k, "p.value")),
-         sens.slope.pop = unlist(purrr::map(pop_sum, "estimates")),
-         p.value.pop = unlist(purrr::map(pop_sum, "p.value")),
+         #sens.slope.pop = unlist(purrr::map(pop_sum, "estimates")),
+         #p.value.pop = unlist(purrr::map(pop_sum, "p.value")),
          sens.slope.hum = unlist(purrr::map(mean_spec_humidity, "estimates")),
          p.value.hum = unlist(purrr::map(mean_spec_humidity, "p.value")),
          sens.slope.ice = unlist(purrr::map(ice_cover_median, "estimates")),
          p.value.ice = unlist(purrr::map(ice_cover_median, "p.value"))) %>%
-  select(-total_km2, -total_precip_mm, -mean_annual_temp_k, -pop_sum,
+  select(-total_km2, -total_precip_mm, -mean_annual_temp_k,
          -mean_spec_humidity, -ice_cover_median) %>%
   mutate(slope_100 = ifelse(slope_100 <= 0, 0, slope_100)) 
 #%>%
@@ -118,16 +123,16 @@ node_blue_ratio
 
 terminal_node_ids
 nodeName = tibble(node_id = terminal_node_ids,
-                  node_name = c("dry, less rain, more SW",
-                                "dry, less rain, less SW, high elev.",
-                                "dry, less rain, less SW, low elev.",
-                                "dry, more rain, low temp",
-                                "dry, more rain, inc. temp",
-                                "wet, high elev., shallow WS",
-                                "wet, high elev., steep WS",
-                                "wet, low elev., more SW",
-                                "wet, low elev., less SW",
-                                "wet")) %>%
+                  node_name = c("a) dryer, more SW",
+                                "b) dryer, less SW, high",
+                                "c) dryer, less SW, low",
+                                "d) dryer, high rain, cooler",
+                                "e) dryer, more rain, warmer",
+                                "f) wetter, high, flat",
+                                "g) wetter, high, steep",
+                                "h) wetter, low, more SW",
+                                "i) wetter, low, less SW",
+                                "j) really wet")) %>%
   mutate(order = 1:length(terminal_node_ids))
 
 pred_sf = pred %>% st_as_sf(coords = c("centr_lon", "centr_lat"), crs = 4326)
@@ -146,17 +151,17 @@ strip_text = pred %>%
   distinct() %>% 
   mutate(id_text = fct_reorder(id_text, order))
 
-node_maps = pred_sf %>% 
+p2 <- pred_sf %>% 
   left_join(strip_text, by = "id") %>% 
+  arrange(order) %>%
   ggplot() +
   geom_sf(data = world_sf, color = "darkgrey", lwd = 0.2) +
-  geom_sf(aes(color = as.character(id_text)), cex = 0.5, alpha = 1) +
+  geom_sf(aes(color = as.character(id_text)), pch=15, cex = 0.4, alpha = 1) +
   coord_sf(ylim = c(-60, 85)) +
   theme_bw() +
   scale_color_viridis_d(option = "D")+
   labs(color = "Lake Sen Slope") +
-  theme(legend.position = "bottom",
-        legend.direction = "horizontal",
+  theme(legend.position = "top",
         panel.grid = element_blank(),
         strip.background = element_blank(),
         strip.text = element_text(face = "bold"),
@@ -178,9 +183,10 @@ color_fill = tibble(id = terminal_node_ids) %>% group_by(id) %>%
   }) %>% 
   ungroup()
 
+dat <- pred_sf %>% 
+  left_join(strip_text, by = "id")
 
-
-fitted %>% 
+p1 <- fitted %>% 
   ggparty(terminal_space = 0.4) +
   geom_edge(aes(lwd = nodesize)) +
   geom_edge_label(mapping = aes(label = paste(substr(breaks_label, start = 1, stop = 15)))) +
@@ -189,21 +195,26 @@ fitted %>%
     aes(label = paste0("Node ", id)),
     fontface = "bold",
     ids = "terminal",
-    size = 3,
+    size = 4,
     nudge_y = 0.01
   ) +
-  geom_node_plot(gglist = list(geom_violin(aes(x = "", y = sens.slope.area, color = sens.slope.area), trim = F,
-                                           draw_quantiles = c(0.25, 0.5, 0.75),
-                                           fill = "grey80", colour = "#3366FF"),
-                               scale_y_continuous(limits = c(-0.3, 0.3)),
-                               scale_color_viridis_c(option = "D"),
-                               theme_minimal()),
+  geom_node_plot(gglist = list(geom_violin(data = dat, aes(x = "", y = sens.slope.area, fill = id_text), trim = F,
+                                           draw_quantiles = c(0.25, 0.5, 0.75), colour = "black"),
+                               scale_y_continuous(limits = c(-0.35, 0.35)),
+                               theme_minimal(),
+                               scale_fill_viridis_d(option = "D"),
+                               theme(plot.background = element_blank(),
+                                     panel.grid.major = element_blank(),
+                                     panel.grid.minor = element_blank(),
+                                     panel.border = element_blank(),
+                                     axis.text = element_text(color = "black", size = 7),
+                                     legend.position = "none")),
   shared_axis_labels = T) +
   theme(legend.position = "none",
         text = element_text(size = 10))
 
-
-
+library(patchwork)
+p = p1/p2
 
 
 
