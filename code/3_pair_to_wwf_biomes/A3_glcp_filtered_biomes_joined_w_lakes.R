@@ -26,11 +26,7 @@ ecoregion <- read_sf(file.path(Dir.Base,"data","shapes", "WWF_ecoregions", "offi
   filter(BIOME != "LAKE") %>%
   select(-BIOME)
 
-year_in_dat <- c("2000","2001", "2002", "2003", "2004", "2005", "2006", "2007",
-                 "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015")
-
-d <- vroom::vroom("/Volumes/SeagateBackupPlusDrive/A2_glcp_filtered_significant_sens_slopes_for_modeling 1.csv") %>%
-     filter(year %in% year_in_dat)
+d <- vroom::vroom("./output/A2_glcp_filtered_significant_sens_slopes_for_modeling 1.csv")
 
 d2 <- d %>%
   select(hylak_id, centr_lon, centr_lat) %>%

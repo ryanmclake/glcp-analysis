@@ -16,17 +16,17 @@ s = Sys.time()
 
 #### Bringing in and filtering data ####
 #import
-vroom::vroom("./output/D4_glcp_slim_kendall_cutoff_add_reservoir.csv") %>%
+vroom::vroom("./output/D4_glcp_slim_kendall_cutoff_add_reservoir_new.csv") %>%
 #select lakes with kendall tau < 1
   filter(kendall_tau < 1) %>%
 #select lakes above area cutoff
-  filter(area_cutoff == "KEEP") %>%
+  #filter(area_cutoff == "KEEP") %>%
 #select lakes tagged as LAKE
   filter(water_body_type == "LAKE") %>%
-  write.table(., file = paste0("./output/D5_glcp_slim_kendall_cutoff_reservoir_filtered.csv"),
+  write.table(., file = paste0("./output/D5_glcp_slim_kendall_cutoff_reservoir_filtered_new.csv"),
               append = T,
               row.names = F,
-              col.names = !file.exists("./output/D5_glcp_slim_kendall_cutoff_reservoir_filtered.csv"))
+              col.names = !file.exists("./output/D5_glcp_slim_kendall_cutoff_reservoir_filtered_new.csv"))
 
 #### Time check ####
 e <- Sys.time()

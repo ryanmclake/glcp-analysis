@@ -18,7 +18,7 @@
 s = Sys.time()
 
 #### Bringing in GLCP data ####
-d <- vroom::vroom("/Volumes/SeagateBackupPlusDrive/D3_glcp_slim_kendall_add_cutoff_1.csv")
+d <- vroom::vroom("./output/D2_glcp_slim_add_kendall_tau_new.csv")
 
 #making data spatial
 d2 <- d %>% 
@@ -63,10 +63,10 @@ left_join(d, dams_to_remove, by = "hylak_id") %>%
 #removing dist column
   select(-dist) %>% 
 #exporting
-  write.table(., file = paste0("./output/D4_glcp_slim_kendall_cutoff_add_reservoir.csv"),
+  write.table(., file = paste0("./output/D4_glcp_slim_kendall_cutoff_add_reservoir_new.csv"),
               append = T,
               row.names = F,
-              col.names = !file.exists("./output/D4_glcp_slim_kendall_cutoff_add_reservoir.csv"))
+              col.names = !file.exists("./output/D4_glcp_slim_kendall_cutoff_add_reservoir_new.csv"))
 
 #### Time check ####
 e <- Sys.time()

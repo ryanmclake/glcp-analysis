@@ -11,14 +11,18 @@
 #### initial time for script start #### 
 s = Sys.time()
 
-year_in_dat <- c("2000","2001", "2002", "2003", "2004", "2005", "2006", "2007",
-                 "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015")
-
+library(dplyr, warn.conflicts = FALSE)
+library(tidyr, warn.conflicts = FALSE)
+library(vroom, warn.conflicts = FALSE)
+library(units, warn.conflicts = FALSE) 
+library(sf, warn.conflicts = FALSE)
+library(broom, warn.conflicts = FALSE)
+library(Kendall, warn.conflicts = FALSE) 
+library(arrow, warn.conflicts = FALSE)
+library(trend, warn.conflicts = FALSE)
+library(readr, warn.conflicts = FALSE)
 #### Bringing in 'glcp slim' data set ####
-d <- vroom::vroom("./output/D1_glcp_slim_yearly_median.csv") %>%
-  filter(year %in% year_in_dat) %>%
-  filter(!is.na(mean_lw_wm2))
-  
+d <- vroom::vroom("./output/D1_glcp_slim_yearly_slice.csv") 
 
 #### Calculating kendall tau for each lake ####
 
@@ -41,10 +45,10 @@ k <- d %>%
 #join
 left_join(d, k, by = "hylak_id") %>%
   #export
-  write.table(., file = paste0("./output/D2_glcp_slim_add_kendall_tau.csv"),
+  write.table(., file = paste0("./output/D2_glcp_slim_add_kendall_tau_new.csv"),
               append = T,
               row.names = F,
-              col.names = !file.exists("./output/D2_glcp_slim_add_kendall_tau.csv"))
+              col.names = !file.exists("./output/D2_glcp_slim_add_kendall_tau_new.csv"))
 
 #### Time check ####
 e <- Sys.time()

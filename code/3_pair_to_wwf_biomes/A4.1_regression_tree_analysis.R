@@ -12,26 +12,20 @@ biomes <- c("TEMPERATE","TROPICAL","DESERT","BOREAL/ICE/TUNDRA")
 
 # for(i in 1:length(biomes)){
 
-year_in_dat <- c("2000","2001", "2002", "2003", "2004", "2005", "2006", "2007",
-                 "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015")
-
-d <- vroom::vroom("./output/A3_glcp_filtered_biomes_joined.csv") %>%
-  filter(year %in% year_in_dat) %>%
+d <- vroom::vroom("./output/A2_glcp_filtered_significant_sens_slopes_for_modeling 1.csv") %>%
+  select(hylak_id, total_km2, total_precip_mm, mean_annual_temp_k, mean_spec_humidity,mean_sw_wm2,
+         elevation, shore_dev, slope_100, centr_lat, centr_lon) %>%
   group_by(hylak_id) %>%
   #dplyr::mutate_at(vars(pop_sum),funs(imputeTS::na_interpolation(., option = "linear"))) %>%
-  dplyr::mutate_at(vars(total_km2),funs(imputeTS::na_interpolation(., option = "linear"))) %>%
   dplyr::mutate(total_km2 = scale(total_km2) %>% as.vector()) %>%
   dplyr::mutate_at(vars(total_km2),funs(imputeTS::na_interpolation(., option = "linear"))) %>%
   dplyr::mutate(total_precip_mm = log(total_precip_mm+1) %>% as.vector()) %>%
   dplyr::mutate(mean_annual_temp_k = log(mean_annual_temp_k+1) %>% as.vector()) %>%
-  #dplyr::mutate(pop_sum = log(pop_sum+1) %>% as.vector()) %>%
-  dplyr::mutate(ice_cover_median = log(ice_cover_median+1) %>% as.vector()) %>%
+  dplyr::mutate(pop_sum = log(pop_sum+1) %>% as.vector()) %>%
+  #dplyr::mutate(ice_cover_median = log(ice_cover_median+1) %>% as.vector()) %>%
   dplyr::mutate(mean_spec_humidity = log(mean_spec_humidity+1) %>% as.vector()) %>%
   dplyr::mutate(mean_sw_wm2 = log(mean_sw_wm2+1) %>% as.vector()) %>%
   ungroup(.) %>%
-  dplyr::mutate_at(vars(ice_cover_median),funs(imputeTS::na_interpolation(., option = "linear"))) %>%
-  select(hylak_id, total_km2, total_precip_mm, mean_annual_temp_k, mean_spec_humidity,mean_sw_wm2,
-         elevation, shore_dev, slope_100, ice_cover_median, biome_type, centr_lat, centr_lon) %>%
   dplyr::group_by(hylak_id, elevation, shore_dev, slope_100, biome_type, centr_lat, centr_lon) %>%
   summarise(across(c(1:6),  ~list(sens.slope(ts(.))))) %>%
   mutate(sens.slope.area = unlist(purrr::map(total_km2, "estimates")),
@@ -49,7 +43,7 @@ d <- vroom::vroom("./output/A3_glcp_filtered_biomes_joined.csv") %>%
          p.value.ice = unlist(purrr::map(ice_cover_median, "p.value"))) %>%
   select(-total_km2, -total_precip_mm, -mean_annual_temp_k,
          -mean_spec_humidity, -ice_cover_median) %>%
-  mutate(slope_100 = ifelse(slope_100 <= 0, 0, slope_100)) 
+  mutate(slope_100 = ifelse(slope_100 <= 0, 0, slope_100))
 #%>%
  # filter(biome_type == biomes[i]) 
 

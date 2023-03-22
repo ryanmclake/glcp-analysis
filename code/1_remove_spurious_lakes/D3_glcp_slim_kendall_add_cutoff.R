@@ -17,7 +17,7 @@
 s = Sys.time()
 
 #### Bringing in the data set ####
-d <- vroom::vroom("./output/D2_glcp_slim_add_kendall_tau.csv")
+d <- vroom::vroom("./output/D2_glcp_slim_add_kendall_tau_new.csv")
 
 #### Calculating and labelling area cutoff #####
 
